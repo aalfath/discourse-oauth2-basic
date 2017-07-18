@@ -84,6 +84,8 @@ class OAuth2BasicAuthenticator < ::Auth::OAuth2Authenticator
       json_walk(result, user_json, :name)
       json_walk(result, user_json, :email)
     end
+    
+    log("debug CharacterID: #{result}")
 
     result
   end
@@ -102,6 +104,7 @@ class OAuth2BasicAuthenticator < ::Auth::OAuth2Authenticator
       json_walk(result, corp_json, :corporation_id)
       json_walk(result, corp_json, :name)
     end
+    log("corp_json: #{result}")
 
     result
   end
@@ -112,12 +115,13 @@ class OAuth2BasicAuthenticator < ::Auth::OAuth2Authenticator
     result = Auth::Result.new
     token = auth['credentials']['token']
     user_details = fetch_user_details(token, auth['info'][:id])
-    corp_details = fetch_corp_details(token, user_details[:user_id])
+    corp_details = fetch_corp_details(token, user_details[:user_id].to_s)
 
     result.name = user_details[:name]
     result.username = user_details[:username]
     result.email = user_details[:email]
-    result.email_valid = result.email.present? && SiteSetting.oauth2_email_verified?
+    result.email_valid = true
+    #result.email_valid = result.email.present? && SiteSetting.oauth2_email_verified?
     result.corpId = corp_details[:corporation_id]
     
     if corporation_id == 98296037
