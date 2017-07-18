@@ -112,7 +112,7 @@ class OAuth2BasicAuthenticator < ::Auth::OAuth2Authenticator
     result = Auth::Result.new
     token = auth['credentials']['token']
     user_details = fetch_user_details(token, auth['info'][:id])
-    corp_details = fetch_corp_details(token, auth['info'][:id])
+    corp_details = fetch_corp_details(token, user_details[:user_id])
 
     result.name = user_details[:name]
     result.username = user_details[:username]
