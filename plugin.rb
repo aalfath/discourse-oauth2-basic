@@ -87,6 +87,24 @@ class OAuth2BasicAuthenticator < ::Auth::OAuth2Authenticator
 
     result
   end
+  
+  def fetch_corp_details(token, id)
+    user_detail_url = SiteSetting.oauth2_user_detail_url.sub(':token', token.to_s).sub(':id', id.to_s)
+
+    log("user_detail_url: #{user_detail_url}")
+
+    corp_json = JSON.parse(open(user_detail_url, 'Authorization' => "Bearer #{token}" ).read)
+
+    log("corp_json: #{corp_json}")
+
+    result = {}
+    if corp_json.present?
+      json_walk(result, corp_json, :corporation_id)
+      json_walk(result, corp_json, :name)
+    end
+
+    result
+  end
 
   def after_authenticate(auth)
     log("after_authenticate response: \n\ncreds: #{auth['credentials'].to_hash}\ninfo: #{auth['info'].to_hash}\nextra: #{auth['extra'].to_hash}")
@@ -94,19 +112,23 @@ class OAuth2BasicAuthenticator < ::Auth::OAuth2Authenticator
     result = Auth::Result.new
     token = auth['credentials']['token']
     user_details = fetch_user_details(token, auth['info'][:id])
+    corp_details = fetch_corp_details(token, auth['info'][:id])
 
     result.name = user_details[:name]
     result.username = user_details[:username]
     result.email = user_details[:email]
     result.email_valid = result.email.present? && SiteSetting.oauth2_email_verified?
-
-    current_info = ::PluginStore.get("oauth2_basic", "oauth2_basic_user_#{user_details[:user_id]}")
-    if current_info
-      result.user = User.where(id: current_info[:user_id]).first
-    elsif SiteSetting.oauth2_email_verified?
-      result.user = User.where(email: Email.downcase(result.email)).first
-      if result.user && user_details[:user_id]
-        ::PluginStore.set("oauth2_basic", "oauth2_basic_user_#{user_details[:user_id]}", {user_id: result.user.id})
+    result.corpId = corp_details[:corporation_id]
+    
+    if corporation_id == 98296037
+      current_info = ::PluginStore.get("oauth2_basic", "oauth2_basic_user_#{user_details[:user_id]}")
+      if current_info
+        result.user = User.where(id: current_info[:user_id]).first
+      elsif SiteSetting.oauth2_email_verified?
+        result.user = User.where(email: Email.downcase(result.email)).first
+        if result.user && user_details[:user_id]
+          ::PluginStore.set("oauth2_basic", "oauth2_basic_user_#{user_details[:user_id]}", {user_id: result.user.id})
+        end
       end
     end
 
