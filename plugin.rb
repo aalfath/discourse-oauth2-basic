@@ -116,13 +116,13 @@ class OAuth2BasicAuthenticator < ::Auth::OAuth2Authenticator
     token = auth['credentials']['token']
     user_details = fetch_user_details(token, auth['info'][:id])
     corp_details = fetch_corp_details(token, user_details[:user_id].to_s)
-
-    result.name = user_details[:name]
-    result.username = user_details[:username]
-    result.email = user_details[:email]
-    result.email_valid = true
     
     if corp_details[:corporation_id] == 98296037
+      result.name = user_details[:name]
+      result.username = user_details[:username]
+      result.email = user_details[:email]
+      result.email_valid = false
+      
       current_info = ::PluginStore.get("oauth2_basic", "oauth2_basic_user_#{user_details[:user_id]}")
       if current_info
         result.user = User.where(id: current_info[:user_id]).first
