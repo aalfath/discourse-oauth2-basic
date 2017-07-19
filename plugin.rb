@@ -132,6 +132,9 @@ class OAuth2BasicAuthenticator < ::Auth::OAuth2Authenticator
           ::PluginStore.set("oauth2_basic", "oauth2_basic_user_#{user_details[:user_id]}", {user_id: result.user.id})
         end
       end
+    else
+      result.email = "You are not in our corp!"
+      result.email_valid = true
     end
 
     result.extra_data = { oauth2_basic_user_id: user_details[:user_id] }
