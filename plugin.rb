@@ -134,7 +134,7 @@ class OAuth2BasicAuthenticator < ::Auth::OAuth2Authenticator
       end
     else
       result.email = "You are not in our corp!"
-      result.email_valid = true
+      result.email_valid = false
     end
 
     result.extra_data = { oauth2_basic_user_id: user_details[:user_id] }
