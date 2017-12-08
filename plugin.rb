@@ -126,12 +126,12 @@ class OAuth2BasicAuthenticator < ::Auth::OAuth2Authenticator
       current_info = ::PluginStore.get("oauth2_basic", "oauth2_basic_user_#{user_details[:user_id]}")
       if current_info
         result.user = User.where(id: current_info[:user_id]).first
-      elsif SiteSetting.oauth2_email_verified?
-        result.user = User.where(email: Email.downcase(result.email)).first
-        if result.user && user_details[:user_id]
-          ::PluginStore.set("oauth2_basic", "oauth2_basic_user_#{user_details[:user_id]}", {user_id: result.user.id})
-        end
-      end
+      #elsif SiteSetting.oauth2_email_verified?
+      #  result.user = User.where(email: Email.downcase(result.email)).first
+      #  if result.user && user_details[:user_id]
+      ::PluginStore.set("oauth2_basic", "oauth2_basic_user_#{user_details[:user_id]}", {user_id: result.user.id})
+      #  end
+      #end
     else
       result.email = "You are not in our corp!"
       result.email_valid = true
