@@ -120,7 +120,7 @@ class OAuth2BasicAuthenticator < ::Auth::OAuth2Authenticator
     if corp_details[:corporation_id] == 98296037
       result.name = user_details[:name]
       result.username = user_details[:username]
-      result.email = user_details[:email]
+      #result.email = user_details[:email]
       result.email_valid = false
       
       current_info = ::PluginStore.get("oauth2_basic", "oauth2_basic_user_#{user_details[:user_id]}")
